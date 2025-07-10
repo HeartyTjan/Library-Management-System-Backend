@@ -12,24 +12,8 @@ public class UpdateTransactionRequest {
     @NotBlank(message = "Transaction Id is required")
     private String transactionId;
 
-    @NotNull(message = "Book Id cannot be null")
-    @NotBlank(message = "Book Id is required")
-    private String bookId;
-
-
-    @NotNull(message = "Member Id cannot be null")
-    @NotBlank(message = "Member Id is required")
-    private String memberId;
-
-    @NotNull(message = "Borrow Date cannot be null")
-    @NotBlank(message = "Borrow Date is required")
-    private LocalDateTime borrowDate;
-
     @NotNull(message = "Return Date cannot be null")
     @NotBlank(message = "Return Date is required")
     private LocalDateTime returnDate;
 
-    @NotNull(message = "Due Date Date cannot be null")
-    @NotBlank(message = "Due Date is required")
-    private LocalDateTime dueDate;
 }

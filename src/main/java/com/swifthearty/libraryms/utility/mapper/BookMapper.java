@@ -18,7 +18,7 @@ public class BookMapper {
     public static GeneralResponse mapBookToResponse(String message, boolean success) {
         GeneralResponse response = new GeneralResponse();
         response.setMessage(message);
-        response.setSuccess(success);
+//        response.setSuccess(success);
         return response;
     }
 }

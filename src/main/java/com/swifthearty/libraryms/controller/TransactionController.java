@@ -8,6 +8,7 @@ import com.swifthearty.libraryms.services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,18 +19,20 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @PostMapping("/add")
-    private ResponseEntity<GeneralResponse> addTransaction(AddTransactionRequest addTransactionRequest ) {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    private ResponseEntity<GeneralResponse> addTransaction(@RequestBody AddTransactionRequest addTransactionRequest ) {
         return new ResponseEntity<>(transactionService.addTransaction(addTransactionRequest), HttpStatus.OK);
     }
 
-
     @DeleteMapping("/delete")
-    private ResponseEntity<GeneralResponse> removeTransaction(String transactionId) {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    private ResponseEntity<GeneralResponse> removeTransaction(@RequestBody String transactionId) {
         return new ResponseEntity<>(transactionService.removeTransaction(transactionId), HttpStatus.OK);
     }
 
     @PutMapping("/update")
-    private ResponseEntity<GeneralResponse> updateTransaction(UpdateTransactionRequest updateTransactionRequest ) {
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    private ResponseEntity<GeneralResponse> updateTransaction(@RequestBody UpdateTransactionRequest updateTransactionRequest ) {
         return new ResponseEntity<>(transactionService.updateTransaction(updateTransactionRequest), HttpStatus.OK);
     }
 }

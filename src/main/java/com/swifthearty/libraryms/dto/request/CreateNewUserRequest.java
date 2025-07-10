@@ -28,6 +28,10 @@ public class CreateNewUserRequest {
     @Size(min = 4, max = 15, message = "Password must not be below 5 and above 15")
     private String password;
 
+    @NotNull(message = "Username is required")
+    @NotBlank(message = "Username Cannot be blank")
+    private String username;
+
     @NotNull(message = "Role is required")
     @NotBlank(message = "Role is required")
     private String role;

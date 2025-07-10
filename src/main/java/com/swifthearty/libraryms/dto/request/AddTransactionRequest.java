@@ -1,5 +1,6 @@
 package com.swifthearty.libraryms.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,9 +21,10 @@ public class AddTransactionRequest {
     @NotBlank(message = "Member Id is required")
     private String memberId;
 
-    @NotNull(message = "Borrow Date cannot be null")
-    @NotBlank(message = "Borrow Date is required")
-    private LocalDateTime borrowDate;
+//    @NotNull(message = "Borrow Date cannot be null")
+//    @NotBlank(message = "Borrow    Date is required")
+//    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+//    private LocalDateTime borrowDate;
 
     @NotNull(message = "Return Date cannot be null")
     @NotBlank(message = "Return Date is required")
@@ -30,6 +32,7 @@ public class AddTransactionRequest {
 
     @NotNull(message = "Due Date Date cannot be null")
     @NotBlank(message = "Due Date is required")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dueDate;
 }
 

@@ -2,46 +2,57 @@ package com.swifthearty.libraryms.services;
 
 import com.swifthearty.libraryms.data.model.Admin;
 import com.swifthearty.libraryms.data.repository.AdminRepository;
-import com.swifthearty.libraryms.dto.request.CreateNewUserRequest;
+import com.swifthearty.libraryms.dto.request.ChangePasswordRequest;
 import com.swifthearty.libraryms.dto.request.UserLoginRequest;
-import com.swifthearty.libraryms.dto.response.CreateNewUserResponse;
 import com.swifthearty.libraryms.dto.response.UserLoginResponse;
 import com.swifthearty.libraryms.utility.SecuredDetails;
-import com.swifthearty.libraryms.utility.exceptions.ResourcesAlreadyExistException;
 import com.swifthearty.libraryms.utility.exceptions.ResourcesNotFoundException;
 import com.swifthearty.libraryms.utility.mapper.CreateUserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class AdminServiceImpl implements  AdminService {
 
-    @Autowired
-    private AdminRepository adminRepository;
+    private final AdminRepository adminRepository;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
 
     @Override
-    public CreateNewUserResponse createUser(CreateNewUserRequest newUser) {
-
-        if(adminRepository.existsByEmail(newUser.getEmail())) {
-            throw new ResourcesAlreadyExistException("User already exist");
-        }
-        Admin admin = CreateUserMapper.mapToAdmin(newUser);
+    public Admin createNewAdmin() {
+        Admin admin = CreateUserMapper.mapToAdmin();
         adminRepository.save(admin);
-        return CreateUserMapper.mapToResponse("User created successfully",true);
+        return admin;
     }
 
     @Override
-    public UserLoginResponse login(UserLoginRequest loginRequest){
-        Admin admin = adminRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(()-> new ResourcesNotFoundException("Invalid Email or Password"));
+    public UserLoginResponse login(UserLoginRequest loginRequest) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        var user = adminRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(()-> new ResourcesNotFoundException("User not found"));
 
-        boolean isLoginSuccessfully = SecuredDetails.matchPassword(loginRequest.getPassword(), admin.getPassword());
-        if(isLoginSuccessfully){
-
-            return CreateUserMapper.mapToLoginResponse("Login Successfully",true);
-        }
-        return CreateUserMapper.mapToLoginResponse("Login Failed",false);
+        String token = jwtService.generateToken(user);
+        return CreateUserMapper.mapToLoginResponse("Login Successfully", true,token);
     }
+
+    @Override
+    public boolean changePassword(ChangePasswordRequest request) {
+        Admin foundAdmin =  adminRepository.findById(request.getId()).orElseThrow(()-> new ResourcesNotFoundException("Admin not found"));
+        if (!foundAdmin.getPassword().equals(request.getOldPassword())) {
+            return false;
+        }
+        String hashedNewPassword = SecuredDetails.hashPassword(request.getNewPassword());
+        foundAdmin.setPassword(SecuredDetails.hashPassword(hashedNewPassword));
+        adminRepository.save(foundAdmin);
+        return true;
+    }
+
 
 }

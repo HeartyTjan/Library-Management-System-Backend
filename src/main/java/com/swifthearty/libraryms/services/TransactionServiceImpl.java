@@ -7,6 +7,10 @@ import com.swifthearty.libraryms.dto.request.UpdateTransactionRequest;
 import com.swifthearty.libraryms.dto.response.GeneralResponse;
 import com.swifthearty.libraryms.utility.mapper.TransactionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,18 +21,22 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
+    @CacheEvict(cacheNames = "transactions", key = "'all'")
     public GeneralResponse addTransaction(AddTransactionRequest addTransactionRequest) {
         Transaction transaction = TransactionMapper.mapToTransaction(addTransactionRequest);
         transactionRepository.save(transaction);
         return TransactionMapper.mapTransactionToResponse("New transaction added", true);
     }
+
     @Override
+    @CacheEvict(cacheNames = "transactions", key = "#transactionId")
     public GeneralResponse removeTransaction(String transactionId) {
         transactionRepository.deleteById(transactionId);
         return TransactionMapper.mapTransactionToResponse("Transaction removed", true);
     }
 
     @Override
+    @CachePut(cacheNames = "transactions", key = "#updateTransactionRequest.transactionId")
     public GeneralResponse updateTransaction(UpdateTransactionRequest updateTransactionRequest) {
         transactionRepository.findById(updateTransactionRequest.getTransactionId()).ifPresent(transaction -> {
             Transaction updatedTransaction = TransactionMapper.mapUpdateToTransaction(transaction, updateTransactionRequest);
