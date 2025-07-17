@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+
+  backend:
+    build: ./backend
+    ports:
+      - "9094:9094"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/myapp
+    depends_on:
+      - mongoDb
+    networks:
+      - backend-net
+      -
+  mongoDb:
+    image: mongo:5
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+    networks:
+      - backend-net
+
+volumes:
+  mongo_data:
